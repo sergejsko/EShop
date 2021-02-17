@@ -29,7 +29,7 @@ namespace EShop.Api.Billing
             services.AddScoped<IBillingService, BillingService>();
             services.AddScoped<IPaymentOrderBuilder, PaymentOrderBuilder>();
             services.AddScoped<IReceiptBuilder, ReceiptBuilder>();
-            services.AddScoped<IPaymentProvider, PaymentProvider>();
+            services.AddScoped<IPaymentOrderProvider, PaymentOrderProvider>();
             services.AddScoped<IOrderValidator, OrderValidator>();
 
             services.AddControllers();

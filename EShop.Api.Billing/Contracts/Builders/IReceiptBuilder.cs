@@ -5,10 +5,10 @@ namespace EShop.Api.Billing.Contracts.Builders
     public interface IReceiptBuilder
     {
         /// <summary>
-        /// Builds the specified data.
+        /// Builds the specified order.
         /// </summary>
-        /// <param name="data">The data.</param>
+        /// <param name="order">The order.</param>
         /// <returns>The receipt.</returns>
-        Receipt Build(Order data);
+        Receipt Build(Order order);
     }
 }

@@ -17,27 +17,27 @@ namespace EShop.Api.Billing.Tests
         [SetUp]
         public void Setup()
         {
-            _paymentProviderMock = new Mock<IPaymentProvider>(MockBehavior.Strict);
+            _paymentOrderProviderMock = new Mock<IPaymentOrderProvider>(MockBehavior.Strict);
             _receiptBuilderMock = new Mock<IReceiptBuilder>(MockBehavior.Strict);
             _paymentOrderBuilderMock = new Mock<IPaymentOrderBuilder>(MockBehavior.Strict);
             _orderValidatorMock = new Mock<IOrderValidator>(MockBehavior.Strict);
-            _billingService = new BillingService(_paymentProviderMock.Object, _receiptBuilderMock.Object, _paymentOrderBuilderMock.Object, _orderValidatorMock.Object);
+            _billingService = new BillingService(_paymentOrderProviderMock.Object, _receiptBuilderMock.Object, _paymentOrderBuilderMock.Object, _orderValidatorMock.Object);
         }
         #endregion
 
         [Test]
         [TestCaseSource(nameof(ValidPaymentTestCases))]
         public async Task BillingService_ProcessOrderAsync_ReturnsSuccessResult(
-            PaymentResult paymentResultValue, 
-            Receipt receipt, 
-            Order order, 
-            PaymentOrder paymentOrder, 
+            PaymentResult paymentResultValue,
+            Receipt receipt,
+            Order order,
+            PaymentOrder paymentOrder,
             bool expected)
         {
             // Arrange
             var paymentResult = Task<PaymentResult>.Factory.StartNew(() => paymentResultValue);
             _orderValidatorMock.Setup(m => m.Validate(order));
-            _paymentProviderMock.Setup(m => m.GetOrderPaymentInfoAsync(It.IsAny<PaymentOrder>())).Returns(paymentResult);
+            _paymentOrderProviderMock.Setup(m => m.CreateOrderTransactionAsync(It.IsAny<PaymentOrder>())).Returns(paymentResult);
             _receiptBuilderMock.Setup(m => m.Build(It.IsAny<Order>())).Returns(receipt);
             _paymentOrderBuilderMock.Setup(m => m.Build(It.IsAny<Order>())).Returns(paymentOrder);
 
@@ -49,7 +49,7 @@ namespace EShop.Api.Billing.Tests
 
             // Expected
             _orderValidatorMock.Verify(m => m.Validate(order), Times.Once);
-            _paymentProviderMock.Verify(m => m.GetOrderPaymentInfoAsync(It.IsAny<PaymentOrder>()), Times.Once);
+            _paymentOrderProviderMock.Verify(m => m.CreateOrderTransactionAsync(It.IsAny<PaymentOrder>()), Times.Once);
             _receiptBuilderMock.Verify(m => m.Build(It.IsAny<Order>()), Times.Once);
             _paymentOrderBuilderMock.Verify(m => m.Build(It.IsAny<Order>()), Times.Once);
         }
@@ -66,7 +66,7 @@ namespace EShop.Api.Billing.Tests
             // Arrange
             var paymentResult = Task<PaymentResult>.Factory.StartNew(() => paymentResultValue);
             _orderValidatorMock.Setup(m => m.Validate(order));
-            _paymentProviderMock.Setup(m => m.GetOrderPaymentInfoAsync(It.IsAny<PaymentOrder>())).Returns(paymentResult);
+            _paymentOrderProviderMock.Setup(m => m.CreateOrderTransactionAsync(It.IsAny<PaymentOrder>())).Returns(paymentResult);
             _receiptBuilderMock.Setup(m => m.Build(It.IsAny<Order>())).Returns(receipt);
             _paymentOrderBuilderMock.Setup(m => m.Build(It.IsAny<Order>())).Returns(paymentOrder);
 
@@ -78,7 +78,7 @@ namespace EShop.Api.Billing.Tests
 
             // Expected
             _orderValidatorMock.Verify(m => m.Validate(order), Times.Once);
-            _paymentProviderMock.Verify(m => m.GetOrderPaymentInfoAsync(It.IsAny<PaymentOrder>()), Times.Once);
+            _paymentOrderProviderMock.Verify(m => m.CreateOrderTransactionAsync(It.IsAny<PaymentOrder>()), Times.Once);
             _receiptBuilderMock.Verify(m => m.Build(It.IsAny<Order>()), Times.Never);
             _paymentOrderBuilderMock.Verify(m => m.Build(It.IsAny<Order>()), Times.Once);
         }
@@ -102,7 +102,7 @@ namespace EShop.Api.Billing.Tests
                     throw new ArgumentException("Invalid amount");
                 }
             });
-            _paymentProviderMock.Setup(m => m.GetOrderPaymentInfoAsync(It.IsAny<PaymentOrder>())).Returns(paymentResult);
+            _paymentOrderProviderMock.Setup(m => m.CreateOrderTransactionAsync(It.IsAny<PaymentOrder>())).Returns(paymentResult);
             _receiptBuilderMock.Setup(m => m.Build(It.IsAny<Order>())).Returns(receipt);
             _paymentOrderBuilderMock.Setup(m => m.Build(It.IsAny<Order>())).Returns(paymentOrder);
 
@@ -114,7 +114,7 @@ namespace EShop.Api.Billing.Tests
 
             // Expected
             _orderValidatorMock.Verify(m => m.Validate(order), Times.Once);
-            _paymentProviderMock.Verify(m => m.GetOrderPaymentInfoAsync(It.IsAny<PaymentOrder>()), Times.Never);
+            _paymentOrderProviderMock.Verify(m => m.CreateOrderTransactionAsync(It.IsAny<PaymentOrder>()), Times.Never);
             _receiptBuilderMock.Verify(m => m.Build(It.IsAny<Order>()), Times.Never);
             _paymentOrderBuilderMock.Verify(m => m.Build(It.IsAny<Order>()), Times.Never);
         }
@@ -232,7 +232,7 @@ namespace EShop.Api.Billing.Tests
             }
         }
 
-        private Mock<IPaymentProvider> _paymentProviderMock;
+        private Mock<IPaymentOrderProvider> _paymentOrderProviderMock;
         private Mock<IReceiptBuilder> _receiptBuilderMock;
         private Mock<IPaymentOrderBuilder> _paymentOrderBuilderMock;
         private Mock<IOrderValidator> _orderValidatorMock;

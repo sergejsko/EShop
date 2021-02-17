@@ -28,12 +28,9 @@ namespace EShop
                 HttpContent contentPost = new StringContent(JsonConvert.SerializeObject(order, Formatting.None), Encoding.UTF8, "application/json");
                 using (var response = client.PostAsync(BILLING_API, contentPost))
                 {
-                    response.Wait();
                     if (response.Result.IsSuccessStatusCode)
                     {
-                        // Return json string
                         var result = response.Result.Content.ReadAsStringAsync();
-                        // Deserialize to receipt object
                         var receipt = JsonConvert.DeserializeObject<Receipt>(result.Result);
                     }
                 }

@@ -9,28 +9,27 @@ using System.Web;
 
 namespace EShop.Api.Billing.Providers
 {
-    public class PaymentProvider : IPaymentProvider
+    public class PaymentOrderProvider : IPaymentOrderProvider
     {
         /// <summary>
-        /// Gets the order payment information.
+        /// Creates the order transaction asynchronous.
         /// </summary>
-        /// <param name="data">The data.</param>
+        /// <param name="paymentOrder">The payment order.</param>
         /// <returns></returns>
-        /// <exception cref="System.ArgumentNullException"></exception>
-        public async Task<PaymentResult> GetOrderPaymentInfoAsync(PaymentOrder data)
+        public async Task<PaymentResult> CreateOrderTransactionAsync(PaymentOrder paymentOrder)
         {
-            if (data == null)
+            if (paymentOrder == null)
             {
                 throw new ArgumentNullException();
             }
 
             var query = HttpUtility.ParseQueryString(string.Empty);
 
-            AddQueryParameter(query, "order_number", data.OrderNumber);
-            AddQueryParameter(query, "amount", data.Amount);
-            AddQueryParameter(query, "description", data.Description);
+            AddQueryParameter(query, "order_number", paymentOrder.OrderNumber);
+            AddQueryParameter(query, "amount", paymentOrder.Amount);
+            AddQueryParameter(query, "description", paymentOrder.Description);
 
-            var request = await ExecuteRequestAsync(data.Gateway, query);
+            var request = await ExecuteRequestAsync(paymentOrder.Gateway, query);
 
             var paymentResult = new PaymentResult()
             {

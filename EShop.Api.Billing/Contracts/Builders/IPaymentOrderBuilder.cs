@@ -5,10 +5,10 @@ namespace EShop.Api.Billing.Contracts.Builders
     public interface IPaymentOrderBuilder
     {
         /// <summary>
-        /// Builds the specified data.
+        /// Builds the specified order.
         /// </summary>
-        /// <param name="data">The data.</param>
-        /// <returns>Payment order.</returns>
-        PaymentOrder Build(Order data);
+        /// <param name="order">The order.</param>
+        /// <returns>The payment order.</returns>
+        PaymentOrder Build(Order order);
     }
 }

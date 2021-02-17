@@ -13,18 +13,18 @@ namespace EShop.Api.Billing.Builders
         /// <summary>
         /// Builds the specified data.
         /// </summary>
-        /// <param name="data">The data.</param>
+        /// <param name="order">The order.</param>
         /// <returns>
         /// Payment order.
         /// </returns>
-        public PaymentOrder Build(Order data)
+        public PaymentOrder Build(Order order)
         {
             return new PaymentOrder
             {
-                OrderNumber = data.OrderNumber,
-                Amount = PaymentHelper.ConvertToCoins(data.Amount).ToString(),
-                Gateway = data.Gateway,
-                Description = data.Description
+                OrderNumber = order.OrderNumber,
+                Amount = PaymentHelper.ConvertToCoins(order.Amount).ToString(),
+                Gateway = order.Gateway,
+                Description = order.Description
             };
         }
     }

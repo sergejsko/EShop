@@ -17,13 +17,13 @@ namespace EShop.Api.Billing.Services
         /// <summary>
         /// Initializes a new instance of the <see cref="BillingService"/> class.
         /// </summary>
-        /// <param name="paymentProvider">The payment provider.</param>
+        /// <param name="paymentOrderProvider">The payment order provider.</param>
         /// <param name="receiptBuilder">The receipt builder.</param>
         /// <param name="paymentOrderBuilder">The payment order builder.</param>
         /// <param name="orderValidator">The order validator.</param>
-        public BillingService(IPaymentProvider paymentProvider, IReceiptBuilder receiptBuilder, IPaymentOrderBuilder paymentOrderBuilder, IOrderValidator orderValidator)
+        public BillingService(IPaymentOrderProvider paymentOrderProvider, IReceiptBuilder receiptBuilder, IPaymentOrderBuilder paymentOrderBuilder, IOrderValidator orderValidator)
         {
-            _paymentProvider = paymentProvider;
+            _paymentOrderProvider = paymentOrderProvider;
             _receiptBuilder = receiptBuilder;
             _paymentOrderBuilder = paymentOrderBuilder;
             _orderValidator = orderValidator;
@@ -41,7 +41,7 @@ namespace EShop.Api.Billing.Services
                 _orderValidator.Validate(order);
 
                 var paymentOrder = _paymentOrderBuilder.Build(order);
-                var result = await _paymentProvider.GetOrderPaymentInfoAsync(paymentOrder);
+                var result = await _paymentOrderProvider.CreateOrderTransactionAsync(paymentOrder);
 
                 if (result.Status == "Success" && result.Code == "000")
                 {
@@ -57,7 +57,7 @@ namespace EShop.Api.Billing.Services
             }
         }
 
-        private readonly IPaymentProvider _paymentProvider;
+        private readonly IPaymentOrderProvider _paymentOrderProvider;
         private readonly IReceiptBuilder _receiptBuilder;
         private readonly IPaymentOrderBuilder _paymentOrderBuilder;
         private readonly IOrderValidator _orderValidator;

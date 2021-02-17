@@ -1,5 +1,6 @@
 ﻿using EShop.Api.Billing.Contracts.Builders;
 using EShop.Api.Billing.Models;
+using System;
 
 namespace EShop.Api.Billing.Builders
 {
@@ -12,16 +13,16 @@ namespace EShop.Api.Billing.Builders
         /// <summary>
         /// Builds the specified data.
         /// </summary>
-        /// <param name="data">The data.</param>
+        /// <param name="order">The order.</param>
         /// <returns>
         /// The receipt.
         /// </returns>
-        public Receipt Build(Order data)
+        public Receipt Build(Order order)
         {
             return new Receipt
             {
-                ReceiptId = "AA1111",
-                OrderNumber = data.OrderNumber
+                ReceiptId = Guid.NewGuid().ToString(),
+                OrderNumber = order.OrderNumber
             };
         }
     }
