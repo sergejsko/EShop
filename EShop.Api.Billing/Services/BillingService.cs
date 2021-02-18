@@ -1,9 +1,5 @@
-﻿using EShop.Api.Billing.Contracts.Builders;
-using EShop.Api.Billing.Contracts.Providers;
-using EShop.Api.Billing.Contracts.Services;
-using EShop.Api.Billing.Contracts.Validators;
+﻿using EShop.Api.Billing.Contracts.Services;
 using EShop.Api.Billing.Models;
-using System;
 using System.Threading.Tasks;
 
 namespace EShop.Api.Billing.Services
@@ -17,49 +13,23 @@ namespace EShop.Api.Billing.Services
         /// <summary>
         /// Initializes a new instance of the <see cref="BillingService"/> class.
         /// </summary>
-        /// <param name="paymentOrderProvider">The payment order provider.</param>
-        /// <param name="receiptBuilder">The receipt builder.</param>
-        /// <param name="paymentOrderBuilder">The payment order builder.</param>
-        /// <param name="orderValidator">The order validator.</param>
-        public BillingService(IPaymentOrderProvider paymentOrderProvider, IReceiptBuilder receiptBuilder, IPaymentOrderBuilder paymentOrderBuilder, IOrderValidator orderValidator)
+        /// <param name="orderService">The order service.</param>
+        public BillingService(IOrderService orderService)
         {
-            _paymentOrderProvider = paymentOrderProvider;
-            _receiptBuilder = receiptBuilder;
-            _paymentOrderBuilder = paymentOrderBuilder;
-            _orderValidator = orderValidator;
+            _orderService = orderService;
         }
 
         /// <summary>
         /// Processes the order asynchronous.
         /// </summary>
         /// <param name="order">The order.</param>
-        /// <returns>The order data.</returns>
-        public async Task<(Receipt receipt, bool IsSuccess, string ErrorMessage)> ProcessOrderAsync(Order order)
+        /// <returns>The order info.</returns>
+        public async Task<OrderInfo> ProcessOrderAsync(Order order)
         {
-            try
-            {
-                _orderValidator.Validate(order);
-
-                var paymentOrder = _paymentOrderBuilder.Build(order);
-                var result = await _paymentOrderProvider.CreateOrderTransactionAsync(paymentOrder);
-
-                if (result.Status == "Success" && result.Code == "000")
-                {
-                    var receipt = _receiptBuilder.Build(order);
-                    return (receipt, true, null);
-                }
-
-                return (null, false, result.Status);
-            }
-            catch (Exception ex)
-            {
-                return (null, false, ex.Message);
-            }
+            var result = await _orderService.ProcessOrderAsync(order);
+            return result;
         }
 
-        private readonly IPaymentOrderProvider _paymentOrderProvider;
-        private readonly IReceiptBuilder _receiptBuilder;
-        private readonly IPaymentOrderBuilder _paymentOrderBuilder;
-        private readonly IOrderValidator _orderValidator;
+        private readonly IOrderService _orderService;
     }
 }

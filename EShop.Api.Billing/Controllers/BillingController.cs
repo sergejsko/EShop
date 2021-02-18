@@ -18,7 +18,7 @@ namespace EShop.Api.Billing.Controllers
             var result = await _billingService.ProcessOrderAsync(data);
             if (result.IsSuccess)
             {
-                return Ok(result.receipt);
+                return Ok(result.Receipt);
             }
             return NotFound(result.ErrorMessage);
         }

@@ -1,9 +1,7 @@
 using EShop.Api.Billing.Builders;
 using EShop.Api.Billing.Contracts.Builders;
-using EShop.Api.Billing.Contracts.Providers;
 using EShop.Api.Billing.Contracts.Services;
 using EShop.Api.Billing.Contracts.Validators;
-using EShop.Api.Billing.Providers;
 using EShop.Api.Billing.Services;
 using EShop.Api.Billing.Validators;
 using Microsoft.AspNetCore.Builder;
@@ -29,8 +27,9 @@ namespace EShop.Api.Billing
             services.AddScoped<IBillingService, BillingService>();
             services.AddScoped<IPaymentOrderBuilder, PaymentOrderBuilder>();
             services.AddScoped<IReceiptBuilder, ReceiptBuilder>();
-            services.AddScoped<IPaymentOrderProvider, PaymentOrderProvider>();
+            services.AddScoped<IPaymentService, PaymentService>();
             services.AddScoped<IOrderValidator, OrderValidator>();
+            services.AddScoped<IOrderService, OrderService>();
 
             services.AddControllers();
         }
