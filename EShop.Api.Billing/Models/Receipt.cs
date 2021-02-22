@@ -1,7 +1,7 @@
 ﻿namespace EShop.Api.Billing.Models
 {
     /// <summary>
-    /// The receipt.
+    /// The receipt model.
     /// </summary>
     public class Receipt
     {

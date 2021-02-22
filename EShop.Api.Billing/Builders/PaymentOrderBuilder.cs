@@ -1,30 +1,27 @@
 ﻿using EShop.Api.Billing.Contracts.Builders;
-using EShop.Api.Billing.Helpers;
 using EShop.Api.Billing.Models;
+using System.Collections.Specialized;
 
 namespace EShop.Api.Billing.Builders
 {
-    /// <summary>
-    /// The payment order builder.
-    /// </summary>
-    /// <seealso cref="EShop.Api.Billing.Contracts.Builders.IPaymentOrderBuilder" />
     public class PaymentOrderBuilder : IPaymentOrderBuilder
     {
         /// <summary>
-        /// Builds the specified data.
+        /// Builds the specified payment order.
         /// </summary>
         /// <param name="order">The order.</param>
+        /// <param name="metadata">The metadata.</param>
         /// <returns>
-        /// Payment order.
+        /// The payment.
         /// </returns>
-        public PaymentOrder Build(Order order)
+        public Payment Build(Order order, NameValueCollection metadata)
         {
-            return new PaymentOrder
+            return new Payment()
             {
-                OrderNumber = order.OrderNumber,
-                Amount = PaymentHelper.ConvertToCoins(order.Amount).ToString(),
-                Gateway = order.Gateway,
-                Description = order.Description
+                Amount = order.Amount.ToString(),
+                Description = order.Description,
+                Metadata = metadata,
+                OrderNumber = order.OrderNumber
             };
         }
     }

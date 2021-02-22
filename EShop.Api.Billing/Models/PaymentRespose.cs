@@ -1,7 +1,7 @@
 ﻿namespace EShop.Api.Billing.Models
 {
     /// <summary>
-    /// The payment gateway response.
+    /// The payment gateway response model.
     /// </summary>
     public class PaymentRespose
     {

@@ -54,15 +54,11 @@ namespace EShop.Api.Billing.Tests
                             OrderNumber = "Test111",
                             UserId = 123456789
                         },
-                        new OrderInfo()
-                        {
-                            IsSuccess = true,
-                            Receipt = new Receipt()
+                        new OrderInfo(new Receipt()
                             {
                                  OrderNumber = "1111",
                                  ReceiptId = "1111"
-                            }
-                        })
+                            }, true, null))
                 };
             }
         }

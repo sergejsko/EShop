@@ -1,13 +1,15 @@
-﻿namespace EShop.Api.Billing.Models
+﻿using System.Collections.Specialized;
+
+namespace EShop.Api.Billing.Models
 {
     /// <summary>
-    /// The payment order model.
+    /// The payment model.
     /// </summary>
-    public class PaymentOrder
+    public class Payment
     {
         public string OrderNumber { get; set; }
         public string Amount { get; set; }
-        public PaymentGatewayType Gateway { get; set; }
         public string Description { get; set; }
+        public NameValueCollection Metadata { get; set; }
     }
 }

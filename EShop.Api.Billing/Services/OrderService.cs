@@ -1,11 +1,11 @@
 ﻿using EShop.Api.Billing.Contracts.Builders;
+using EShop.Api.Billing.Contracts.Factory;
 using EShop.Api.Billing.Contracts.Services;
 using EShop.Api.Billing.Contracts.Validators;
 using EShop.Api.Billing.Models;
 using System;
 using System.Collections.Specialized;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace EShop.Api.Billing.Services
 {
@@ -14,17 +14,17 @@ namespace EShop.Api.Billing.Services
         /// <summary>
         /// Initializes a new instance of the <see cref="OrderService"/> class.
         /// </summary>
-        /// <param name="paymentService">The payment service.</param>
+        /// <param name="paymentFactory">The payment factory.</param>
         /// <param name="receiptBuilder">The receipt builder.</param>
         /// <param name="paymentOrderBuilder">The payment order builder.</param>
         /// <param name="orderValidator">The order validator.</param>
         public OrderService(
-            IPaymentService paymentService,
+            IPaymentFactory paymentFactory,
             IReceiptBuilder receiptBuilder,
             IPaymentOrderBuilder paymentOrderBuilder,
             IOrderValidator orderValidator)
         {
-            _paymentService = paymentService;
+            _paymentFactory = paymentFactory;
             _receiptBuilder = receiptBuilder;
             _paymentOrderBuilder = paymentOrderBuilder;
             _orderValidator = orderValidator;
@@ -34,15 +34,14 @@ namespace EShop.Api.Billing.Services
         /// Processes the order asynchronous.
         /// </summary>
         /// <param name="order">The order.</param>
-        /// <returns>The order data.</returns>
+        /// <returns>The order info.</returns>
         public async Task<OrderInfo> ProcessOrderAsync(Order order)
         {
             try
             {
                 _orderValidator.Validate(order);
 
-                var paymentOrder = _paymentOrderBuilder.Build(order);
-                var result = await MakePaymentTransactionAsync(paymentOrder);
+                var result = await MakeBillingOrderAsync(order);
 
                 if (result.Result == "OK" && result.Code == "000")
                 {
@@ -62,54 +61,48 @@ namespace EShop.Api.Billing.Services
         /// Creates the order information.
         /// </summary>
         /// <param name="receipt">The receipt.</param>
-        /// <param name="isSucess">if set to <c>true</c> [is sucess].</param>
+        /// <param name="success">if set to <c>true</c> [is success].</param>
         /// <param name="errorMessage">The error message.</param>
         /// <returns>The order info.</returns>
-        private OrderInfo CreateOrderInfo(Receipt receipt, bool isSucess, string errorMessage)
-        {
-            return new OrderInfo()
-            {
-                ErrorMessage = errorMessage,
-                IsSuccess = isSucess,
-                Receipt = receipt
-            };
-        }
+        private OrderInfo CreateOrderInfo(Receipt receipt, bool success, string errorMessage) => new OrderInfo(receipt, success, errorMessage);
 
         // <summary>
-        /// Make payment transaction asynchronous.
+        /// Send billing order asynchronous.
         /// </summary>
-        /// <param name="paymentOrder">The payment order.</param>
-        /// <returns></returns>
-        private async Task<PaymentRespose> MakePaymentTransactionAsync(PaymentOrder paymentOrder)
+        /// <param name="order">The order.</param>
+        /// <returns>The payment response.</returns>
+        private async Task<PaymentRespose> MakeBillingOrderAsync(Order order)
         {
-            if (paymentOrder == null)
+            var metadata = new NameValueCollection();
+
+            switch (order.Gateway)
             {
-                throw new ArgumentNullException();
+                case PaymentGatewayType.FirstData:
+                    AddMetadataParameter(metadata, "type", "MakeFirstData");
+                    break;
+                case PaymentGatewayType.PayPal:
+                    AddMetadataParameter(metadata, "type", "MakePayPal");
+                    break;
+                default:
+                    throw new NotSupportedException("Not implemented payment gateway.");
             }
 
-            var query = HttpUtility.ParseQueryString(string.Empty);
+            var gateway = _paymentFactory.CreatePaymentGateway(order.Gateway);
+            var payment = _paymentOrderBuilder.Build(order, metadata);
+            var response = await gateway.MakePaymentAsync(payment);
 
-            AddQueryParameter(query, "order_number", paymentOrder.OrderNumber);
-            AddQueryParameter(query, "amount", paymentOrder.Amount);
-            AddQueryParameter(query, "description", paymentOrder.Description);
-
-            var request = await _paymentService.MakePaymentAsync(paymentOrder.Gateway, query);
-
-            return request;
+            return response;
         }
 
         /// <summary>
-        /// Adds the query parameter.
+        /// Adds the metadata.
         /// </summary>
-        /// <param name="query">The query.</param>
+        /// <param name="metadata">The metadata.</param>
         /// <param name="name">The name.</param>
         /// <param name="value">The value.</param>
-        private void AddQueryParameter(NameValueCollection query, string name, string value)
-        {
-            query.Add(name, value);
-        }
+        private void AddMetadataParameter(NameValueCollection metadata, string name, string value) => metadata.Add(name, value);
 
-        private readonly IPaymentService _paymentService;
+        private readonly IPaymentFactory _paymentFactory;
         private readonly IReceiptBuilder _receiptBuilder;
         private readonly IPaymentOrderBuilder _paymentOrderBuilder;
         private readonly IOrderValidator _orderValidator;

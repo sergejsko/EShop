@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
@@ -28,10 +29,15 @@ namespace EShop
                 HttpContent contentPost = new StringContent(JsonConvert.SerializeObject(order, Formatting.None), Encoding.UTF8, "application/json");
                 using (var response = client.PostAsync(BILLING_API, contentPost))
                 {
+                    var result = response.Result.Content.ReadAsStringAsync();
                     if (response.Result.IsSuccessStatusCode)
                     {
-                        var result = response.Result.Content.ReadAsStringAsync();
                         var receipt = JsonConvert.DeserializeObject<Receipt>(result.Result);
+                        Console.WriteLine($"ReceiptId: {receipt.ReceiptId}");
+                    } 
+                    else
+                    {
+                        Console.WriteLine(result.Result);
                     }
                 }
             }
