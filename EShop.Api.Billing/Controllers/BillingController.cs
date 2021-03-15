@@ -13,7 +13,7 @@ namespace EShop.Api.Billing.Controllers
 
         [HttpPost]
         [Route("order")]
-        public async Task<IActionResult> ProcessOrderAsync(Order data)
+        public async Task<IActionResult> BillingOrderAsync(Order data)
         {
             var result = await _billingService.ProcessOrderAsync(data);
             if (result.IsSuccess)
